@@ -1,0 +1,2 @@
+Selectable scale + mode, answer from notes in only 1 octave of that scale
+List of toggles buttons, connect the switches to to decide which notes show up on screen. 
