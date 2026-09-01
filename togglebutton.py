@@ -2,12 +2,13 @@ import pygame
 import button
 import time
 class ToggleButton(button.GameButton):
-    def __init__(self, x, y, width, length, color, font, button_image, button_hover_image, text_color, screen,note):
+    def __init__(self, x, y, width, length, color, font, button_image, button_hover_image, text_color, screen,note,toggled):
         super().__init__(x, y, width, length, color, font, button_image, button_hover_image, text_color, screen)
         self.text = self.font.render(note, True, self.text_color)
         self.text_rect = self.text.get_rect()
         self.text_rect.center = (self.x + self.width / 2, self.y + self.length / 2)
-        self.toggled = False
+        self.toggled = toggled
+        self.note = note
 
     def clicked(self, clicked, mouse_pos):
         if clicked and self.hovered(mouse_pos):
