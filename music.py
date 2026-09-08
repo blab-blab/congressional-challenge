@@ -1,5 +1,5 @@
 import pygame
-
+import keysignature
 import time
 import random
 from guessthenote import GuessTheNoteButton
@@ -212,8 +212,22 @@ while running:
                 button.show(mouse_pos)
                 button.clicked(clicked, mouse_pos)
             for button in scale_buttons:
-                button.show(mouse_pos)
-                button.clicked(clicked, mouse_pos)
+                button.show(mouse_pos)  
+                
+                if button.clicked(clicked, mouse_pos):
+                    for b in scale_buttons:
+                        if b != button:
+                            b.toggled = False
+                    key_name = button.note
+                    print(f"Key changed to: {key_name}")
+                    keysignature_notes = keysignature.return_key_notes(key_name)
+                    print(f"Notes in the key: {keysignature_notes}")
+                    for button in toggle_buttons:
+                        if button.note in keysignature_notes:
+                            button.toggled = True
+                        else:
+                            button.toggled = False
+                
         elif currentstate == "main":
             if settingsbutton.clicked(clicked, mouse_pos):
                 currentstate = "settings"
