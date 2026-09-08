@@ -1,5 +1,5 @@
 import pygame
-#t numpy as np
+
 import time
 import random
 from guessthenote import GuessTheNoteButton
@@ -40,23 +40,23 @@ pygame.init()
 
 WIDTH, HEIGHT = 800, 600
 FPS = 60
-image = pygame.image.load(r"C:\Users\noobp\Documents\congressional-challenge\images\sound.png")
+image = pygame.image.load(r"images\sound.png")
 image = pygame.transform.scale(image, (50,50))
 
-button = pygame.image.load(r"C:\Users\noobp\Documents\congressional-challenge\images\playbutton.png")
+button = pygame.image.load(r"images\playbutton.png")
 button = pygame.transform.scale(button, (100,100))
 button2 = pygame.transform.scale(button, (120,120)) 
 
-guessthenote = pygame.image.load(r"C:\Users\noobp\Documents\congressional-challenge\images\guessthenote.png")
+guessthenote = pygame.image.load(r"images\guessthenote.png")
 guessthenote = pygame.transform.scale(guessthenote, (250,100))
 
-settings = pygame.image.load(r"C:\Users\noobp\Documents\congressional-challenge\images\settingsbutton.png")
+settings = pygame.image.load(r"images\settingsbutton.png")
 settings = pygame.transform.scale(settings, (50,50))
 settings2 = pygame.transform.scale(settings, (60,60))
 
-unselected = pygame.image.load(r"C:\Users\noobp\Documents\congressional-challenge\images\unchecked.png")
+unselected = pygame.image.load(r"images\unchecked.png")
 unselected = pygame.transform.scale(unselected, (25,25))
-selected = pygame.image.load(r"C:\Users\noobp\Documents\congressional-challenge\images\checked.png")
+selected = pygame.image.load(r"images\checked.png")
 selected = pygame.transform.scale(selected, (25,25))
 
 modestates = ["guessnote","mainmenu"]
@@ -96,9 +96,52 @@ for i in range (2,5):
 
 pygame.mixer.init()
 
+def play_note():
+    global cooldown, timer, currentstate, note
+    active_notes = []
+    for button in toggle_buttons:
+        if button.toggled:
+            active_notes.append(button.note)
+    played = False
+    note = None 
+    for key in keysBLACK:
+        if key.note[:len(key.note)-1] in active_notes:
+            played, note, cooldown = key.playnote(clicked, mouse_pos, cooldown)
+            if played:
+                timer = 0
+                currentstate = "validation"
+                break
+    if not played:
+        for key in keysWHITE:
+            if key.note[:len(key.note)-1] in active_notes:
+                played, note, cooldown = key.playnote(clicked, mouse_pos, cooldown)
+                if played:
+                    timer = 0
+                    currentstate = "validation"
+                    break
+
+    
+def draw_piano():
+    active_notes = []
+    for button in toggle_buttons:
+        if button.toggled:
+            active_notes.append(button.note)
+    for key in keysWHITE:
+        #print (key.note)
+        if key.note[:len(key.note)-1] in active_notes:
+            key.show(screen, clicked, mouse_pos, cooldown)
+    for key in keysBLACK:
+        if key.note[:len(key.note)-1] in active_notes:
+            key.show(screen, clicked, mouse_pos, cooldown)
+
 
 def play_note_random():
-    note = random.choice(normalnotes + accidentals)
+    active_notes = []
+    for button in toggle_buttons:
+        if button.toggled:
+            active_notes.append(button.note)
+
+    note = random.choice(active_notes) + str(random.randint(2, 4))
     sound = pygame.mixer.Sound(rf"Notes\{note}.mp3")
     sound.play()
     print("playing note")
@@ -123,12 +166,10 @@ settingsbutton = SettingsButton(725, 25, 100, 100, WHITE, font, settings, settin
 
 allnotes = ["C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B"]
 toggle_buttons = []
-
+scale_buttons = []
 for note in allnotes:
-    toggle_buttons.append(ToggleButton(600, 50 + allnotes.index(note) * 40, 25, 25, WHITE, font, unselected, selected, BLACK, screen, note))
-    
-    
-
+    toggle_buttons.append(ToggleButton(600, 50 + allnotes.index(note) * 40, 25, 25, WHITE, font, unselected, selected, BLACK, screen, note, True))
+    scale_buttons.append(ToggleButton(100, 50 + allnotes.index(note) * 40, 25, 25, WHITE, font, unselected, selected, BLACK, screen, note + " Major", False))
 
 while running:
     # 1. Event Handling
@@ -159,11 +200,8 @@ while running:
         
 
         if not currentstate == "settings":
-            for key in keysWHITE:
-                key.show(screen, clicked, mouse_pos, cooldown)
-            for key in keysBLACK:
-                key.show(screen, clicked, mouse_pos, cooldown)
-        
+            draw_piano()
+
             # time.sleep(2.0)
 
     
@@ -171,6 +209,9 @@ while running:
             if settingsbutton.clicked(clicked, mouse_pos):
                 currentstate = "main"
             for button in toggle_buttons:
+                button.show(mouse_pos)
+                button.clicked(clicked, mouse_pos)
+            for button in scale_buttons:
                 button.show(mouse_pos)
                 button.clicked(clicked, mouse_pos)
         elif currentstate == "main":
@@ -186,21 +227,7 @@ while running:
         elif currentstate == "waiting":
             if settingsbutton.clicked(clicked, mouse_pos):
                 currentstate = "settings"
-            played = False
-            note = None
-            for key in keysBLACK:
-                played, note, cooldown = key.playnote(clicked, mouse_pos, cooldown)
-                if played:
-                    timer = 0
-                    currentstate = "validation"
-                    break
-            if not played:
-                for key in keysWHITE:
-                    played, note, cooldown = key.playnote(clicked, mouse_pos, cooldown)
-                    if played:
-                        timer = 0
-                        currentstate = "validation"
-                        break
+            play_note()
         if currentstate == "validation":
             if settingsbutton.clicked(clicked, mouse_pos):
                 currentstate = "settings"
