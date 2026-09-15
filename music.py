@@ -167,9 +167,16 @@ settingsbutton = SettingsButton(725, 25, 100, 100, WHITE, font, settings, settin
 allnotes = ["C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B"]
 toggle_buttons = []
 scale_buttons = []
+scale_buttons_minor = []
+majorminor_buttons = []
 for note in allnotes:
     toggle_buttons.append(ToggleButton(600, 50 + allnotes.index(note) * 40, 25, 25, WHITE, font, unselected, selected, BLACK, screen, note, True))
     scale_buttons.append(ToggleButton(100, 50 + allnotes.index(note) * 40, 25, 25, WHITE, font, unselected, selected, BLACK, screen, note + " Major", False))
+    scale_buttons_minor.append(ToggleButton(100, 50 + allnotes.index(note) * 40, 25, 25, WHITE, font, unselected, selected, BLACK, screen, note + " Minor", False))
+
+majorminor_buttons.append(ToggleButton(250, 50, 25, 25, WHITE, font, unselected, selected, BLACK, screen, "Major", False))
+majorminor_buttons.append(ToggleButton(250, 90, 25, 25, WHITE, font, unselected, selected, BLACK, screen, "Minor", False))
+majorminor_buttons[0].toggled = True
 
 while running:
     # 1. Event Handling
@@ -211,22 +218,51 @@ while running:
             for button in toggle_buttons:
                 button.show(mouse_pos)
                 button.clicked(clicked, mouse_pos)
-            for button in scale_buttons:
-                button.show(mouse_pos)  
-                
+            for button in majorminor_buttons:
+                button.show(mouse_pos)
                 if button.clicked(clicked, mouse_pos):
-                    for b in scale_buttons:
+                    for b in majorminor_buttons:
                         if b != button:
                             b.toggled = False
-                    key_name = button.note
-                    print(f"Key changed to: {key_name}")
-                    keysignature_notes = keysignature.return_key_notes(key_name)
-                    print(f"Notes in the key: {keysignature_notes}")
-                    for button in toggle_buttons:
-                        if button.note in keysignature_notes:
-                            button.toggled = True
-                        else:
-                            button.toggled = False
+                    for b in scale_buttons:
+                        b.toggled = False
+                    for b in scale_buttons_minor:
+                        b.toggled = False
+
+            if majorminor_buttons[0].toggled:
+                for button in scale_buttons:
+                    button.show(mouse_pos)  
+                    
+                    if button.clicked(clicked, mouse_pos):
+                        for b in scale_buttons:
+                            if b != button:
+                                b.toggled = False
+                        key_name = button.note
+                        print(f"Key changed to: {key_name}")
+                        keysignature_notes = keysignature.return_key_notes(key_name)
+                        print(f"Notes in the key: {keysignature_notes}")
+                        for button in toggle_buttons:
+                            if button.note in keysignature_notes:
+                                button.toggled = True
+                            else:
+                                button.toggled = False
+            else:
+                for button in scale_buttons_minor:
+                    button.show(mouse_pos)  
+                    
+                    if button.clicked(clicked, mouse_pos):
+                        for b in scale_buttons_minor:
+                            if b != button:
+                                b.toggled = False
+                        key_name = button.note
+                        print(f"Key changed to: {key_name}")
+                        keysignature_notes = keysignature.return_key_notes(key_name)
+                        print(f"Notes in the key: {keysignature_notes}")
+                        for button in toggle_buttons:
+                            if button.note in keysignature_notes:
+                                button.toggled = True
+                            else:
+                                button.toggled = False
                 
         elif currentstate == "main":
             if settingsbutton.clicked(clicked, mouse_pos):
