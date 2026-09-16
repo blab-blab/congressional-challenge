@@ -27,7 +27,7 @@ class GuessTheNoteButton:
 
     def show(self, mouse_pos):
         if self.hovered(mouse_pos):
-            self.screen.blit(self.button_hover_image, (self.x - 10, self.y - 10))
+            self.screen.blit(self.button_hover_image, (self.x - 5, self.y - 5))
         else:
             self.screen.blit(self.button_image, (self.x, self.y))
 

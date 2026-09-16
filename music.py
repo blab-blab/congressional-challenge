@@ -6,6 +6,7 @@ from guessthenote import GuessTheNoteButton
 from key import Key
 from button import GameButton
 from confetti import spawn_confetti
+from selectbutton import SelectButton
 from settings import SettingsButton
 from togglebutton import ToggleButton
 # 1. Initialize the mixer with specific audio settings
@@ -47,8 +48,20 @@ button = pygame.image.load(r"images\playbutton.png")
 button = pygame.transform.scale(button, (100,100))
 button2 = pygame.transform.scale(button, (120,120)) 
 
+home = pygame.image.load(r"images\home.png")
+home = pygame.transform.scale(home, (50,50))
+home2 = pygame.transform.scale(home, (60,60))
+
+
+
+
 guessthenote = pygame.image.load(r"images\guessthenote.png")
 guessthenote = pygame.transform.scale(guessthenote, (250,100))
+
+interval = pygame.image.load(r"images\interval.png")
+interval = pygame.transform.scale(interval, (685/3,364/3))
+interval2 = pygame.transform.scale(interval, (685/3 + 20,364/3 + 20))
+
 
 settings = pygame.image.load(r"images\settingsbutton.png")
 settings = pygame.transform.scale(settings, (50,50))
@@ -163,6 +176,9 @@ for i in range(15):
 playbutton = GameButton(350, 75, 125, 75, WHITE, font, button, button2, ORANGE, screen)
 guessthenotebutton = GuessTheNoteButton(300, 200, 200, 100, WHITE, font, guessthenote, guessthenote, ORANGE, screen)
 settingsbutton = SettingsButton(725, 25, 100, 100, WHITE, font, settings, settings2, ORANGE, screen)
+homebutton = GameButton(650, 25, 50, 50, WHITE, font, home, home2, ORANGE, screen)
+intervalbutton = GuessTheNoteButton(300, 350, 200, 100, WHITE, font, interval, interval2, ORANGE, screen)
+
 
 allnotes = ["C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B"]
 toggle_buttons = []
@@ -204,7 +220,10 @@ while running:
     if gamemode == "guessnote":
 
         settingsbutton.show(mouse_pos)
-        
+        homebutton.show(mouse_pos)
+        if homebutton.clicked(clicked, mouse_pos):
+            gamemode = "mainmenu"
+            currentstate = "main"
 
         if not currentstate == "settings":
             draw_piano()
@@ -294,7 +313,21 @@ while running:
         if guessthenotebutton.clicked(clicked, mouse_pos):
             gamemode = "guessnote"
             currentstate = "main"
-    screen.blit(image, (0,0))
+        intervalbutton.show(mouse_pos)
+        if intervalbutton.clicked(clicked, mouse_pos):
+            gamemode = "interval"
+            currentstate = "main"
+
+
+    if gamemode == "interval":
+        settingsbutton.show(mouse_pos)
+        homebutton.show(mouse_pos)
+        if homebutton.clicked(clicked, mouse_pos):
+            gamemode = "mainmenu"
+            currentstate = "main"
+        selectbutton = SelectButton(300, 200, 200, 100, WHITE, font, BLACK, screen, "Select Interval")
+        selectbutton.show(mouse_pos)
+        
     # Update the display
     pygame.display.flip()
     
