@@ -73,7 +73,7 @@ selected = pygame.image.load(r"images\checked.png")
 selected = pygame.transform.scale(selected, (25,25))
 
 modestates = ["guessnote","mainmenu"]
-states = ["play_sound","waiting","validation","main","settings"]
+states = ["play_sound","waiting","validation","main","settings","play_sound_intervals","waiting_intervals","validation_intervals"]
 
 currentstate = "main"
 
@@ -160,6 +160,47 @@ def play_note_random():
     print("playing note")
     return note
 
+notes = ["C", "D", "E", "F", "G", "A", "B", "C"]
+
+def play_interval_random_starting_on_c():
+    interval_options = {
+        "Unison": 0,
+        "Major 2nd": 2,
+        "Major 3rd": 4,
+        "Perfect 4th": 5,
+        "Perfect 5th": 7,
+        "Major 6th": 9,
+        "Major 7th": 11,
+        "Octave": 12
+    }
+
+    intervals = list(interval_options.keys())
+
+  
+    #semitone_difference = interval_options[selected_interval]
+
+    starting_note_index = notes.index(random.choice(notes))
+
+    selected_interval = random.choice(intervals[:len(notes) - starting_note_index])  # Ensure the interval is valid from the starting note
+
+
+    target_note_index = (starting_note_index + intervals.index(selected_interval))  # +1 to account for the next note in the list
+    target_note = notes[target_note_index] + "3" if selected_interval != "Octave" and starting_note_index != 0 else notes[starting_note_index] + "4"  # Adjust for octave
+
+    starting_note = notes[starting_note_index] + "3"
+
+    # Play the starting note
+    starting_sound = pygame.mixer.Sound(rf"Notes\{starting_note}.mp3")
+    starting_sound.play()
+    time.sleep(1)  # Wait for a second before playing the next note
+
+    # Play the target note
+    target_sound = pygame.mixer.Sound(rf"Notes\{target_note}.mp3")
+    target_sound.play()
+
+    return selected_interval, starting_note, target_note
+
+
 clicked = False
 mouse_pos = (0,0)
 running = True
@@ -193,6 +234,21 @@ for note in allnotes:
 majorminor_buttons.append(ToggleButton(250, 50, 25, 25, WHITE, font, unselected, selected, BLACK, screen, "Major", False))
 majorminor_buttons.append(ToggleButton(250, 90, 25, 25, WHITE, font, unselected, selected, BLACK, screen, "Minor", False))
 majorminor_buttons[0].toggled = True
+
+
+selectbuttons = []
+for i in range(1,9):
+    if i == 1:
+        selectbuttons.append(SelectButton(500, 100 + i * 50, 200, 40, WHITE, font, BLACK, screen, f"Unison"))
+    elif i == 8:
+        selectbuttons.append(SelectButton(500, 100 + i * 50, 200, 40, WHITE, font, BLACK, screen, f"Octave"))
+    elif i == 2:
+        selectbuttons.append(SelectButton(500, 100 + i * 50, 200, 40, WHITE, font, BLACK, screen, f"Major 2nd"))
+    elif i == 3:
+        selectbuttons.append(SelectButton(500, 100 + i * 50, 200, 40, WHITE, font, BLACK, screen, f"Major 3rd"))
+    else:
+        selectbuttons.append(SelectButton(500, 100 + i * 50, 200, 40, WHITE, font, BLACK, screen, f"Major {i}th" if i != 4 and i != 5 else f"Perfect {i}th"))
+
 
 while running:
     # 1. Event Handling
@@ -302,9 +358,10 @@ while running:
                 currentstate = "settings"
             print(f"Played {note}")
             playbutton.validate_note(note, correct_note, screen, confetti_particles, CONFETTI_COLORS, WIDTH)
-            timer += 1
-            if timer > 60:
-                currentstate = "main"
+            currentstate = "main"
+            # timer += 1
+            # if timer > 60:
+            #     currentstate = "main"
 
         for particle in confetti_particles:
             particle.show(screen)
@@ -317,16 +374,49 @@ while running:
         if intervalbutton.clicked(clicked, mouse_pos):
             gamemode = "interval"
             currentstate = "main"
+            
 
 
     if gamemode == "interval":
-        settingsbutton.show(mouse_pos)
+        
+       #settingsbutton.show(mouse_pos)
         homebutton.show(mouse_pos)
         if homebutton.clicked(clicked, mouse_pos):
             gamemode = "mainmenu"
             currentstate = "main"
-        selectbutton = SelectButton(300, 200, 200, 100, WHITE, font, BLACK, screen, "Select Interval")
-        selectbutton.show(mouse_pos)
+        for button in selectbuttons:
+            button.show(mouse_pos)
+        
+
+        if currentstate == "main":
+            # if settingsbutton.clicked(clicked, mouse_pos):
+            #     currentstate = "settings"
+            playbutton.show(mouse_pos)
+            if playbutton.clicked(clicked, mouse_pos):
+                currentstate = "play_sound_intervals"
+        if currentstate == "play_sound_intervals":
+            playbutton.show(mouse_pos)
+            if playbutton.clicked(clicked, mouse_pos):
+                correct_interval, starting_note, target_note = play_interval_random_starting_on_c()
+                print(f"Correct interval: {correct_interval}, Starting note: {starting_note}, Target note: {target_note}")
+                currentstate = "waiting_intervals"
+        elif currentstate == "waiting_intervals":
+            #print("Waiting for user to select an interval...")
+            for button in selectbuttons:
+                button.show(mouse_pos)
+                if button.clicked(clicked, mouse_pos):
+                    if button.interval == correct_interval:
+                        button.validate_note(button.interval, correct_interval, screen, confetti_particles, CONFETTI_COLORS, WIDTH)
+
+                        currentstate = "main"
+                    else:
+                        print("incorrect")
+                        currentstate = "main"
+
+
+        for particle in confetti_particles:
+            particle.show(screen)
+        # selectbutton.show(mouse_pos)
         
     # Update the display
     pygame.display.flip()

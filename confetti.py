@@ -13,7 +13,7 @@ class ConfettiParticle:
         self.life = random.randint(40, 70)
 
     def update(self):
-        self.vy += 0.2
+        self.vy += 0.3
         self.x += self.vx
         self.y += self.vy
         self.life -= 1

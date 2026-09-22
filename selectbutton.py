@@ -1,6 +1,6 @@
 import pygame
 import time
-
+from confetti import spawn_confetti
 class SelectButton:
     def __init__(self, x, y, width, length, color, font, text_color, screen, text):
         self.x = x
@@ -20,6 +20,7 @@ class SelectButton:
 
         self.text_color = text_color
         self.screen = screen
+        self.interval = text
         self.text = self.font.render(text, True, self.text_color)
         self.text_rect = self.text.get_rect()
         self.text_rect.center = (self.x + self.width / 2, self.y + self.length / 2)
@@ -48,12 +49,12 @@ class SelectButton:
 
     def validate_note(self, note, correct_note, screen, confetti_particles, confetti_colors, width):
         if note == correct_note:
-            self.text = self.font.render("Correct note!", True, (0, 0, 0))
+            # self.text = self.font.render("Correct note!", True, (0, 0, 0))
             screen.blit(self.text, (self.x, self.y))
-            from confetti import spawn_confetti
-            spawn_confetti(width // 2, 100, 5, confetti_particles, confetti_colors)
+            spawn_confetti(width // 2, 100, 100, confetti_particles, confetti_colors)
         else:
-            self.text = self.font.render(
-                f"Incorrect note! The correct note was {correct_note}", True, (0, 0, 0)
-            )
-            screen.blit(self.text, (self.x, self.y))
+            pass
+            # self.text = self.font.render(
+            #     f"Incorrect note! The correct note was {correct_note}", True, (0, 0, 0)
+            # )
+            # screen.blit(self.text, (self.x, self.y))

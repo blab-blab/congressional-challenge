@@ -49,7 +49,7 @@ class GameButton:
             self.text = self.font.render("Correct note!", True, (0, 0, 0))
             screen.blit(self.text, (self.x, self.y))
             from confetti import spawn_confetti
-            spawn_confetti(width // 2, 100, 5, confetti_particles, confetti_colors)
+            spawn_confetti(width // 2, 100, 100, confetti_particles, confetti_colors)
         else:
             self.text = self.font.render(
                 f"Incorrect note! The correct note was {correct_note}", True, (0, 0, 0)
